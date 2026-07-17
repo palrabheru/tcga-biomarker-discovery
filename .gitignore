@@ -20,3 +20,5 @@ results/*.csv
 
 # Processed datasets
 data/processed/
+
+.pybiomart.sqlite
