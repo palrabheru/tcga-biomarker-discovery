@@ -22,3 +22,6 @@ results/*.csv
 data/processed/
 
 .pybiomart.sqlite
+
+data/raw/
+*.tsv.gz
