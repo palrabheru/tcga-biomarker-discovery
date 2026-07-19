@@ -230,5 +230,7 @@ The Random Forest classifier achieved higher overall accuracy, while Logistic Re
 
 # Author
 **Pal Gaurav Rabheru**
+
 Biotechnology Student, University of Houston
+
 GitHub: https://github.com/palrabheru
