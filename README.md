@@ -234,3 +234,9 @@ The Random Forest classifier achieved higher overall accuracy, while Logistic Re
 Biotechnology Student, University of Houston
 
 GitHub: https://github.com/palrabheru
+
+## Reproducibility and interpretation notes
+
+This is an **exploratory analysis of TCGA-BRCA**, not a clinically validated prognostic test. The reported biomarker associations and model performance should be treated as cohort-specific until confirmed in independent datasets. In particular, feature selection and other outcome-informed preprocessing should be performed inside training folds for future unbiased predictive evaluation. Correlation with survival is not evidence of causality.
+
+For reviewers: start with the [analysis notebooks](notebooks/), inspect the [source modules](src/), and compare the documented metrics with the versioned [result tables](results/tables/). Underlying patient-level data should be obtained from the originating public-data resources and handled under their applicable access conditions.
