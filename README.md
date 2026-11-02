@@ -1,242 +1,52 @@
-# TCGA Breast Cancer Biomarker Discovery Using Machine Learning and Survival Analysis
+# Finding candidate survival markers in TCGA breast cancer data
 
-A bioinformatics project that identifies potential prognostic biomarkers for breast cancer using **TCGA-BRCA RNA-sequencing data**, machine learning, and survival analysis.
+I used TCGA-BRCA expression and clinical data to explore whether tumor gene-expression patterns could help identify patients with different survival outcomes. The project combines statistical screening, machine-learning baselines, and survival analysis.
 
----
+![Kaplan–Meier analysis](images/kaplan_meier_linc00583.png)
 
-## Project Overview
+## What I did
 
-Breast cancer is one of the most common cancers worldwide, and identifying biomarkers associated with patient survival can improve prognosis and personalized treatment strategies.
+I cleaned and matched RNA-seq FPKM data to clinical records, screened expression differences with Mann–Whitney tests and false-discovery-rate correction, and narrowed the results to 20 candidate genes. I compared logistic regression and random forest models, then examined survival differences using Kaplan–Meier plots and Cox regression.
 
-In this project, RNA sequencing data and clinical information from **The Cancer Genome Atlas (TCGA)** were analyzed to identify candidate prognostic biomarkers. Differential expression analysis, machine learning models, and survival analysis were integrated into a reproducible bioinformatics workflow.
+The notebook contains the analysis walkthrough: [biomarker_analysis.ipynb](notebooks/biomarker_analysis.ipynb). I also separated reusable data-loading, preprocessing, statistical, and plotting code into [src/](src/).
 
----
+## Results
 
-## Objectives
+| Model | Accuracy | Precision | Recall | ROC AUC |
+|---|---:|---:|---:|---:|
+| Random forest | 0.833 | 0.467 | 0.175 | 0.602 |
+| Logistic regression | 0.653 | 0.241 | 0.525 | 0.617 |
 
-- Process and clean TCGA-BRCA RNA-seq data
-- Integrate clinical and gene expression datasets
-- Identify candidate biomarker genes
-- Predict patient survival using machine learning
-- Validate biomarkers using survival analysis
-- Develop a reproducible bioinformatics pipeline
+The random forest had higher overall accuracy, but its recall for the poorer-outcome class was low. Logistic regression recovered more of those cases, at the cost of lower precision. In other words, neither model is ready for clinical use.
 
----
+KLF10, DEF6, and LINC01235 appeared among influential features in the random forest. LINC00583 was also associated with survival in the reported analysis, with a Cox hazard ratio of 6.34. That estimate needs independent validation and careful review of model assumptions and group sizes.
 
-## Dataset
+![ROC comparison](images/roc_curve_comparison.png)
 
-**Source:** The Cancer Genome Atlas (TCGA)
+![Random forest feature importance](images/random_forest_feature_importance.png)
 
-**Cancer Type:** Breast Invasive Carcinoma (BRCA)
+## Explore the analysis
 
-### Data Used
+- [Notebook](notebooks/biomarker_analysis.ipynb) — step-by-step exploratory work
+- [Source code](src/) — data processing, statistical screening, and plots
+- [Results tables](results/tables/) — saved statistical output
+- [Figures](images/) — survival curves and model evaluation plots
 
-- RNA-seq gene expression (FPKM)
-- Clinical patient information
+To work locally:
 
----
-
-## Workflow
-
-```text
-TCGA RNA-seq Data
-        │
-        ▼
-Data Cleaning & Preprocessing
-        │
-        ▼
-Clinical Data Integration
-        │
-        ▼
-Differential Expression Analysis
-        │
-        ▼
-Top Candidate Biomarkers
-        │
-        ├──────────────┐
-        ▼              ▼
-Random Forest    Logistic Regression
-        │              │
-        └──────┬───────┘
-               ▼
-Kaplan-Meier Survival Analysis
-               │
-               ▼
-Cox Proportional Hazards Model
-               │
-               ▼
-Candidate Prognostic Biomarker
+```bash
+git clone https://github.com/palrabheru/tcga-biomarker-discovery.git
+cd tcga-biomarker-discovery
+python -m venv .venv
+# Activate .venv for your operating system
+python -m pip install -r requirements.txt
+jupyter notebook notebooks/biomarker_analysis.ipynb
 ```
 
----
+The notebook relies on downloaded TCGA source data; consult its input paths before running. The requirements file is an environment snapshot rather than a minimal package specification.
 
-## Repository Structure
+## What I would investigate next
 
-```text
-tcga-biomarker-discovery/
-│
-├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── images/
-│
-├── notebooks/
-│   └── biomarker_analysis.ipynb
-│
-├── results/
-│
-├── src/
-│
-├── requirements.txt
-└── README.md
-```
+The strongest next step is independent validation, with outcome-informed feature selection contained within training folds. I'd also want to assess the impact of tumor stage, age, molecular subtype, and class imbalance. The current work is an exploratory search for associations, not proof that a gene causes a survival difference.
 
----
-
-## Methods
-
-### Data Preprocessing
-
-- Loaded TCGA BRCA RNA-seq expression data
-- Loaded and cleaned clinical metadata
-- Removed duplicate genes
-- Matched patient IDs across datasets
-- Prepared expression matrix for analysis
-
-### Differential Expression Analysis
-
-- Statistical comparison of gene expression
-- Candidate biomarker selection
-- Multiple-testing correction
-
-### Machine Learning
-
-Two classification models were trained:
-
-- Random Forest
-- Logistic Regression
-
-Performance was evaluated using:
-
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- ROC-AUC
-- Confusion Matrices
-
-### Survival Analysis
-
-Candidate biomarkers were validated using:
-
-- Kaplan-Meier Survival Curves
-- Log-rank Test
-- Cox Proportional Hazards Regression
-
----
-
-# Results
-
-## Machine Learning Performance
-
-| Model | Accuracy | Precision | Recall | ROC-AUC |
-|--------|---------:|----------:|-------:|--------:|
-| Random Forest | 0.833 | 0.467 | 0.175 | 0.602 |
-| Logistic Regression | 0.653 | 0.241 | 0.525 | 0.617 |
-
-The Random Forest classifier achieved higher overall accuracy, while Logistic Regression demonstrated improved recall for identifying patients with poor survival outcomes.
-
----
-
-## Key Findings
-
-- Twenty candidate biomarker genes were identified.
-- Random Forest ranked **KLF10**, **DEF6**, and **LINC01235** among the most influential predictive genes.
-- Survival analysis identified **LINC00583** as a significant prognostic biomarker.
-- Kaplan-Meier analysis demonstrated a significant survival difference between high and low LINC00583 expression groups.
-- Cox proportional hazards regression estimated a hazard ratio of **6.34**, indicating that increased LINC00583 expression was associated with poorer survival.
-
----
-
-# Figures
-
-## Random Forest Feature Importance
-
-![Random Forest Feature Importance](images/random_forest_feature_importance.png)
-
----
-
-## Logistic Regression Coefficients
-
-![Logistic Regression Coefficients](images/logistic_regression_coefficients.png)
-
----
-
-## Kaplan-Meier Survival Curve
-
-![Kaplan-Meier Curve](images/kaplan_meier_linc00583.png)
-
----
-
-## ROC Curve Comparison
-
-![ROC Curve](images/roc_curve_comparison.png)
-
----
-
-## Random Forest Confusion Matrix
-
-![Random Forest Confusion Matrix](images/random_forest_confusion_matrix.png)
-
----
-
-## Logistic Regression Confusion Matrix
-
-![Logistic Regression Confusion Matrix](images/logistic_regression_confusion_matrix.png)
-
----
-
-# Technologies Used
-
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Scikit-learn
-- Lifelines
-- Jupyter Notebook
-- Git
-- GitHub
-
----
-
-# Future Improvements
-
-- Validate findings using independent breast cancer datasets.
-- Incorporate additional clinical variables such as age, tumor stage, and molecular subtype.
-- Evaluate additional machine learning models (e.g., XGBoost).
-- Develop a multi-gene prognostic risk score.
-
----
-
-# References
-
-- The Cancer Genome Atlas (TCGA)
-- Scikit-learn Documentation
-- Lifelines Documentation
-
----
-
-# Author
-**Pal Gaurav Rabheru**
-
-Biotechnology Student, University of Houston
-
-GitHub: https://github.com/palrabheru
-
-## Reproducibility and interpretation notes
-
-This is an **exploratory analysis of TCGA-BRCA**, not a clinically validated prognostic test. The reported biomarker associations and model performance should be treated as cohort-specific until confirmed in independent datasets. In particular, feature selection and other outcome-informed preprocessing should be performed inside training folds for future unbiased predictive evaluation. Correlation with survival is not evidence of causality.
-
-For reviewers: start with the [analysis notebooks](notebooks/), inspect the [source modules](src/), and compare the documented metrics with the versioned [result tables](results/tables/). Underlying patient-level data should be obtained from the originating public-data resources and handled under their applicable access conditions.
+**Data source:** [The Cancer Genome Atlas](https://www.cancer.gov/ccg/research/genome-sequencing/tcga) · **Author:** [Pal Rabheru](https://github.com/palrabheru)
